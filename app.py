@@ -1,3 +1,5 @@
+from tweetanalysis import *
+
 from flask import Flask, render_template, request
 from flask_table import Table, Col
 
@@ -19,9 +21,9 @@ def index():
     return render_template('index.html', **locals())
 
 # for adding final values to table in index.html - 2d array        
-itemsF = [('Name1', 'Description1', 'Conf1'),
-         ('Name2', 'Description2', 'Conf2'),
-         ('Name3', 'Description3', 'Conf3')]
+# itemsF = [('Name1', 'Description1', 'Conf1'),
+#          ('Name2', 'Description2', 'Conf2'),
+#          ('Name3', 'Description3', 'Conf3')]
 
 # After clicking submit button, change values
 @app.route("/predict", methods =['POST','GET'])
@@ -32,6 +34,13 @@ def predict():
     # for p in items:
     #     for z in p:
     #         print ("lol ", z)
+
+    tweet_strs = scrapeTweets(username, 5)
+
+    avg_phrase_sentiments = analyzeTweetStrings(tweet_strs)
+
+    # Convert thedictionary to a 2d table where each row is a tuple
+    itemsF = [(phrase, str(sentiment)[:3]) for phrase, sentiment in avg_phrase_sentiments.items()]
     
     objects = itemsF
     
