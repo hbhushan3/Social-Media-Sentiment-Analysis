@@ -3,17 +3,23 @@ from flask_table import Table, Col
 
 app = Flask(__name__)
 
+# for adding initial table values in index.html - 2d array        
+itemsI = [('Help', 0.5, 0.7),
+         ('Car', 0.8, 0.9)]
+
 # initialize values in index.html
 @app.route("/")
 def index():
+    objects = itemsI
+    
     tAnalyzed = 2
     tTweets = 2
     tFirstPostDate = '12/12/2020'
     tLastPostDate = '11/11/2022'
     return render_template('index.html', **locals())
 
-# for adding values to table in index.html - 2d array        
-items = [('Name1', 'Description1', 'Conf1'),
+# for adding final values to table in index.html - 2d array        
+itemsF = [('Name1', 'Description1', 'Conf1'),
          ('Name2', 'Description2', 'Conf2'),
          ('Name3', 'Description3', 'Conf3')]
 
@@ -27,7 +33,7 @@ def predict():
     #     for z in p:
     #         print ("lol ", z)
     
-    objects = items
+    objects = itemsF
     
     tAnalyzed = 5
     tTweets = 5
@@ -38,4 +44,4 @@ def predict():
     return render_template('index.html', **locals()) 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+     app.run(host='0.0.0.0',port=5000)
