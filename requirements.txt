@@ -1,2 +1,4 @@
 Flask==2.2.2
 Flask-Table==0.5.0
+Tweepy
+Pattern==3.6
