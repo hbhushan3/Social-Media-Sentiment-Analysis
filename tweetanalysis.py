@@ -18,10 +18,23 @@ def scrapeTweets(user_handle, num_tweets_to_fetch):
 	client = tweepy.Client(bearer_token=config.BEARER_TOKEN)
 
 	user_id = client.get_user(username=user_handle.replace('@', '')).data.id
-	tweet_objs = client.get_users_tweets(id=user_id, max_results=num_tweets_to_fetch).data
+	tweet_objs = client.get_users_tweets(id=user_id, exclude=['retweets', 'replies'], max_results=num_tweets_to_fetch).data
 
-	# remove the hyperlinks to images and videos
-	return [re.sub("https://t.co/.*$", "", tweet_obj.text) for tweet_obj in tweet_objs]
+	# tweet strings
+	tweet_strs = []
+
+	for tweet_obj in tweet_objs:
+		tweet_str = tweet_obj.text
+		# remove the hyperlinks to images and videos
+		tweet_str = re.sub("https://t.co/.*$", "", tweet_str)
+		# remove mentions (e.g. "I love you @jeffbezos!")
+		tweet_str = re.sub("@\w.*", "", tweet_str)
+		# remove hashtags
+		tweet_str = re.sub("#\w.*", "", tweet_str)
+
+		tweet_strs.append(tweet_str)
+
+	return tweet_strs
 
 
 
@@ -38,8 +51,8 @@ def analyzeTweetStrings(tweet_strs):
 		# need to filter out the non-"conent" words like pronouns, prepositions, quantifiers, certain verbs, etc.
 		# https://gist.github.com/nlothian/9240750
 		
-		content_chunk_tags = ['NP'] # chunk tags
-		to_remove_tags = ['PRP$', 'JJ'] # word tags
+		content_chunk_tags = ['NP'] # only look at chunks with these tags
+		to_remove_tags = ['PRP$', 'JJ', 'DT'] # remove words with these tags from the chunks we keep
 
 		parsed = parsetree(tweet_str)
 
@@ -73,7 +86,7 @@ def analyzeTweetStrings(tweet_strs):
 							phrase_sentiments[new_phrase] = [[tweet_polarity], [polarity_confidence]]
 
 	# return the averaged out sentiments
-	return {phrase : [statistics.mean(info[0]), statistics.mean(info[1])] for phrase, info in phrase_sentiments.items()}
+	return {phrase : [statistics.mean(info[0]), statistics.mean(info[1]), len(info[0])] for phrase, info in phrase_sentiments.items()}
 		
 
 

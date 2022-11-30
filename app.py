@@ -31,7 +31,7 @@ def predict():
     username = request.form['twitterUserName']
     
 
-    tweet_strs = scrapeTweets(username, 5)
+    tweet_strs = scrapeTweets(username, 50)
 
     avg_phrase_sentiments = analyzeTweetStrings(tweet_strs)
 
@@ -42,16 +42,20 @@ def predict():
     for phrase, info in avg_phrase_sentiments.items():
         polarity_num = round(info[0], 1)
         confidence_num = round(info[1], 1)
+        num_times_referenced = info[2]
 
         polarity_str = str(polarity_num)
         confidence_str = str(confidence_num)
+        # num_times_referenced_str = str(info[2])
 
         if polarity_str == '-0.0':
             polarity_str = '0.0'
         if confidence_str == '-0.0':
             confidence_str = '0.0'
 
-        itemsF.append((phrase, polarity_str, confidence_str))
+        itemsF.append((phrase, polarity_str, confidence_str, num_times_referenced))
+
+    itemsF = sorted(itemsF, key=lambda row: -row[3])
     
     objects = itemsF
     
