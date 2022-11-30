@@ -33,7 +33,7 @@ def analyzeTweetStrings(tweet_strs):
 
 	for tweet_str in tweet_strs:
 		# index 0 is for sentiment polarity, 1 is for confidence score
-		tweet_polarity = sentiment(tweet_str)[0]
+		tweet_polarity, polarity_confidence = sentiment(tweet_str)
 		
 		# need to filter out the non-"conent" words like pronouns, prepositions, quantifiers, certain verbs, etc.
 		# https://gist.github.com/nlothian/9240750
@@ -67,12 +67,13 @@ def analyzeTweetStrings(tweet_strs):
 						new_phrase = ''.join([w.lower() + ' ' for w in content_words])
 						
 						if new_phrase in phrase_sentiments.keys():
-							phrase_sentiments[new_phrase].append(tweet_polarity)
+							phrase_sentiments[new_phrase][0].append(tweet_polarity)
+							phrase_sentiments[new_phrase][1].append(polarity_confidence)
 						else:
-							phrase_sentiments[new_phrase] = [tweet_polarity]
+							phrase_sentiments[new_phrase] = [[tweet_polarity], [polarity_confidence]]
 
 	# return the averaged out sentiments
-	return {phrase : statistics.mean(polarities) for phrase, polarities in phrase_sentiments.items()}
+	return {phrase : [statistics.mean(info[0]), statistics.mean(info[1])] for phrase, info in phrase_sentiments.items()}
 		
 
 
@@ -91,7 +92,7 @@ if __name__ == '__main__':
 
 	avg_phrase_sentiments = analyzeTweetStrings(real_tweet_strs)
 
-	for phrase, avg_polarity in avg_phrase_sentiments.items():
-		print(phrase + str(avg_polarity)[:4])
+	for phrase, info in avg_phrase_sentiments.items():
+		print(phrase + ' ' + str(info[0])[:4] + ' ' + str(info[1]))
 	
 

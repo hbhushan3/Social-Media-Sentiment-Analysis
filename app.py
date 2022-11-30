@@ -5,9 +5,13 @@ from flask_table import Table, Col
 
 app = Flask(__name__)
 
+
+
 # for adding initial table values in index.html - 2d array        
-itemsI = [('Help', 0.5, 0.7),
-         ('Car', 0.8, 0.9)]
+itemsI = [
+    ('a', 'b', 'c'),
+    ('d', 'd', 'd')
+]
 
 # initialize values in index.html
 @app.route("/")
@@ -20,27 +24,34 @@ def index():
     tLastPostDate = '11/11/2022'
     return render_template('index.html', **locals())
 
-# for adding final values to table in index.html - 2d array        
-# itemsF = [('Name1', 'Description1', 'Conf1'),
-#          ('Name2', 'Description2', 'Conf2'),
-#          ('Name3', 'Description3', 'Conf3')]
 
 # After clicking submit button, change values
 @app.route("/predict", methods =['POST','GET'])
 def predict():
     username = request.form['twitterUserName']
     
-    # for testing values in 2d array
-    # for p in items:
-    #     for z in p:
-    #         print ("lol ", z)
 
     tweet_strs = scrapeTweets(username, 5)
 
     avg_phrase_sentiments = analyzeTweetStrings(tweet_strs)
 
     # Convert thedictionary to a 2d table where each row is a tuple
-    itemsF = [(phrase, str(sentiment)[:3]) for phrase, sentiment in avg_phrase_sentiments.items()]
+
+    itemsF = []
+
+    for phrase, info in avg_phrase_sentiments.items():
+        polarity_num = round(info[0], 1)
+        confidence_num = round(info[1], 1)
+
+        polarity_str = str(polarity_num)
+        confidence_str = str(confidence_num)
+
+        if polarity_str == '-0.0':
+            polarity_str = '0.0'
+        if confidence_str == '-0.0':
+            confidence_str = '0.0'
+
+        itemsF.append((phrase, polarity_str, confidence_str))
     
     objects = itemsF
     
